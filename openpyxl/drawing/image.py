@@ -9,6 +9,8 @@ try:
 except ImportError:
     PILImage = False
 
+from openpyxl.compat import basestring
+
 def bounding_box(bw, bh, w, h):
     """
     Returns a tuple (new_width, new_height) which has the property
@@ -45,8 +47,7 @@ class Image(object):
     def __init__(self, img):
 
         self.ref = img
-
-        # don't keep the image open
+        mark_to_close = isinstance(img, basestring)
         image = _import_image(img)
         self.width = image.size[0]
         self.height = image.size[1]
@@ -54,7 +55,9 @@ class Image(object):
             self.format = image.format.lower()
         except AttributeError:
             self.format = "png"
-        image.close()
+        if mark_to_close:
+            # PIL instances created for metadata should be closed.
+            image.close()
 
 
     def _data(self):
