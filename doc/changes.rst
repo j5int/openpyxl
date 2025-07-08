@@ -1,3 +1,11 @@
+2.5.14-j5.2 (2025-07-08)
+========================
+Bugfixes
+--------
+* `#1193 <https://foss.heptapod.net/openpyxl/openpyxl/-/issues/1193>`_ Cannot process worksheets with comments
+* `#1330 <https://foss.heptapod.net/openpyxl/openpyxl/-/issues/1330>`_ Fix issue where worksheet with comment corrupts if saved more than once.
+
+
 2.5.14 (2019-01-23)
 ===================
 
