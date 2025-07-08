@@ -64,9 +64,6 @@ class ExcelWriter(object):
         self._comments = []
         self._pivots = []
 
-        for ws in workbook.worksheets:
-            ws._comments = []
-
 
     def write_data(self):
         """Write the various xml files into the zip archive."""
@@ -217,6 +214,7 @@ class ExcelWriter(object):
                         r.Target = ws._drawing.path
 
             if ws._comments:
+                ws._comments = list(set(ws._comments)) # Remove duplicates
                 self._write_comment(ws)
 
             if ws.legacy_drawing is not None:
