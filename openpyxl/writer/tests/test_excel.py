@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import pytest
 
 from openpyxl.chart import BarChart
+from openpyxl.comments import Comment
 from openpyxl.drawing.spreadsheet_drawing import SpreadsheetDrawing
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table
@@ -110,8 +111,20 @@ def test_chartsheet(ExcelWriter, archive):
     assert cs.path[1:] in writer._archive.namelist()
 
 
+def test_duplicate_comment(ExcelWriter, archive):
+
+    wb = Workbook()
+    ws = wb.active
+    ws['B5'].comment = Comment("A comment", "The Author")
+
+    writer = ExcelWriter(wb, archive)
+    writer.write_worksheet(ws)
+    writer.write_worksheet(ws)
+    assert len(ws._comments) == 1
+
+
 def test_comment(ExcelWriter, archive):
-    from openpyxl.comments import Comment
+
     wb = Workbook()
     ws = wb.active
     ws['B5'].comment = Comment("A comment", "The Author")

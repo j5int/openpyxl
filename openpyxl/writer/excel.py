@@ -64,6 +64,9 @@ class ExcelWriter(object):
         self._comments = []
         self._pivots = []
 
+        for ws in workbook.worksheets:
+            ws._comments = []
+
 
     def write_data(self):
         """Write the various xml files into the zip archive."""
