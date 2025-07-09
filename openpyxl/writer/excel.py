@@ -214,7 +214,8 @@ class ExcelWriter(object):
                         r.Target = ws._drawing.path
 
             if ws._comments:
-                ws._comments = list(set(ws._comments)) # Remove duplicates
+                seen = set()
+                ws._comments = [c for c in ws._comments if not (c.ref in seen or seen.add(c.ref))] # Remove duplicates
                 self._write_comment(ws)
 
             if ws.legacy_drawing is not None:
