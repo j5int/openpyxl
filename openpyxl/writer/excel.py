@@ -178,7 +178,7 @@ class ExcelWriter(object):
         self._archive.writestr(cs.path[1:], tostring(cs.to_tree()))
         self.manifest.append(cs)
 
-        if ws.legacy_drawing is None:
+        if ws.legacy_drawing is None or self.workbook.vba_archive is None:
             ws.legacy_drawing = 'xl/drawings/commentsDrawing{0}.vml'.format(cs._id)
             vml = None
         else:
@@ -214,6 +214,8 @@ class ExcelWriter(object):
                         r.Target = ws._drawing.path
 
             if ws._comments:
+                seen = set()
+                ws._comments = [c for c in ws._comments if not (c.ref in seen or seen.add(c.ref))] # Remove duplicates
                 self._write_comment(ws)
 
             if ws.legacy_drawing is not None:

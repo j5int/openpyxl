@@ -7,10 +7,13 @@ from zipfile import ZipFile
 import pytest
 
 from openpyxl.chart import BarChart
+from openpyxl.comments import Comment
 from openpyxl.drawing.spreadsheet_drawing import SpreadsheetDrawing
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table
 from openpyxl.utils.exceptions import InvalidFileException
+
+from openpyxl.writer.excel import save_workbook
 
 
 @pytest.fixture
@@ -110,8 +113,48 @@ def test_chartsheet(ExcelWriter, archive):
     assert cs.path[1:] in writer._archive.namelist()
 
 
+def test_duplicate_comment(ExcelWriter, archive):
+
+    wb = Workbook()
+    ws = wb.active
+    ws['B1'].comment = Comment("Comment for B1", "AuthorB1")
+    ws['C2'].comment = Comment("Comment for C2", "AuthorC2")
+    ws['D3'].comment = Comment("Comment for D3", "AuthorD3")
+    ws['E4'].comment = Comment("Comment for E4", "AuthorE4")
+
+    writer = ExcelWriter(wb, archive)
+    writer._write_worksheets()
+    writer._write_worksheets()
+    assert len(ws._comments) == 4
+
+
+def test_cell_comment_mapping(ExcelWriter, archive):
+
+    wb = Workbook()
+    ws = wb.active
+    
+    ws['A1'].comment = Comment("Comment for A1", "AuthorA1")
+    ws['B2'].comment = Comment("Comment for B2", "AuthorB2")
+    ws['C3'].comment = Comment("Comment for C3", "AuthorC3")
+    ws['D4'].comment = Comment("Comment for D4", "AuthorD4")
+    
+    writer = ExcelWriter(wb, archive)
+    writer._write_worksheets()
+    worksheet = writer.workbook.active
+    
+    # Test that each cell has the correct comment content
+    assert worksheet['A1'].comment.content == "Comment for A1"
+    assert worksheet['A1'].comment.author == "AuthorA1"    
+    assert worksheet['B2'].comment.content == "Comment for B2"
+    assert worksheet['B2'].comment.author == "AuthorB2"    
+    assert worksheet['C3'].comment.content == "Comment for C3"
+    assert worksheet['C3'].comment.author == "AuthorC3"    
+    assert worksheet['D4'].comment.content == "Comment for D4"
+    assert worksheet['D4'].comment.author == "AuthorD4"
+
+
 def test_comment(ExcelWriter, archive):
-    from openpyxl.comments import Comment
+
     wb = Workbook()
     ws = wb.active
     ws['B5'].comment = Comment("A comment", "The Author")
